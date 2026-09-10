@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 import json
-import os
 
 app = FastAPI()
 
