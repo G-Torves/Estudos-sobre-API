@@ -4,6 +4,7 @@ import bcrypt
 
 app = FastAPI()
 
+# Funções úteis
 def password_crypt(password):
     salt = bcrypt.gensalt()
     password = password.encode('utf-8')
@@ -23,11 +24,16 @@ def personagem_json():
         personagem = json.load(archive)
         return personagem
 
+# API
 @app.get('/')
 def raiz ():
     return {"Status": "OK"}
 
 @app.get('/status')
+def status ():
+    return {'API': 'OK',
+            'Database': 'Em andamento...',
+            'IA': 'Em andamento...'}
 
 @app.get('/personagem')
 def listar_Personagens():
