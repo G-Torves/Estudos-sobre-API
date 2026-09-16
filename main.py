@@ -1,64 +1,78 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import json
+import bcrypt
 
 app = FastAPI()
 
-def users_json():
+def password_crypt(password):
+    salt = bcrypt.gensalt()
+    password = password.encode('utf-8')
+    
+    hash_password = bcrypt.hashpw(password,salt)
+    return hash_password
+
+def personagem_json():
     try:
-        archive = open("users.json", 'r')
-        users = json.load(archive)
-        return users
+        archive = open("personagem.json", 'r')
+        personagem = json.load(archive)
+        return personagem
     except FileNotFoundError:
-        with open('users.json', 'w') as arquivo:
+        with open('personagem.json', 'w') as arquivo:
             arquivo.write("{\n\n}")
-        archive = open("users.json", 'r')
-        users = json.load(archive)
-        return users
+        archive = open("personagem.json", 'r')
+        personagem = json.load(archive)
+        return personagem
 
 @app.get('/')
 def raiz ():
     return {"Status": "OK"}
 
-@app.get('/user')
-def listar_Usuarios():
-    users = users_json()
-    return users
+@app.get('/status')
 
-@app.get('/user/{user_id}')
-def buscar_Usuario(user_id):
-    users = users_json()
-    return users[f'{user_id}']
+@app.get('/personagem')
+def listar_Personagens():
+    personagem = personagem_json()
+    return personagem
 
-@app.post('/user/new')
-def novo_Usuario(name: str, password: str):
-    users = users_json()
-    dados = {'nome': f'{name}', 'Status': 'Ativo', 'Senha': f'{password}'}
-    proximo_id = str(max([int(k) for k in users.keys()]) + 1)
-    users[proximo_id] = dados
+@app.get('/personagem/{personagem_id}')
+def buscar_Personagem(personagem_id):
+    personagem = personagem_json()
+    return personagem[f'{personagem_id}']
 
-    with open("users.json", "w", encoding="utf-8") as arquivo:
-        json.dump(users, arquivo, ensure_ascii=False, indent=4)
+@app.post('/personagem/new')
+def novo_Personagem(name: str, password: str):
+    personagem = personagem_json()
+    dados = {'nome': f'{name}', 'Status': 'Ativo', 'Senha': f'{password_crypt(password)}'}
+    key = personagem.keys()
+    if key:
+        proximo_id = str(max([int(k) for k in key]) + 1)
+    else: 
+        proximo_id = '1' 
+    personagem[proximo_id] = dados
+
+    with open("personagem.json", "w", encoding="utf-8") as arquivo:
+        json.dump(personagem, arquivo, ensure_ascii=False, indent=4)
     
-    return users[proximo_id]
+    return personagem[proximo_id]
 
-@app.patch('/user/update')
-def atualizar_Usuario(user_id: str, alteration_field: str, alteration_value: str):
-    user_old = users_json()
-    user_old[user_id][f'{alteration_field}'] = alteration_value
+@app.patch('/personagem/update')
+def atualizar_Personagem(personagem_id: str, alteration_field: str, alteration_value: str):
+    user_old = personagem_json()
+    user_old[personagem_id][f'{alteration_field}'] = alteration_value
     user_new = user_old
     
-    with open("users.json", "w", encoding="utf-8") as arquivo:
+    with open("personagem.json", "w", encoding="utf-8") as arquivo:
         json.dump(user_new, arquivo, ensure_ascii=False, indent=4)
     
-    return user_new[user_id]
+    return user_new[personagem_id]
     
-@app.delete('/user/delete')
-def deletar_Usuario(user_id):
-    users = users_json()
-    del users[user_id]
-    atualized_users = users
+@app.delete('/personagem/delete')
+def deletar_Personagem(personagem_id):
+    personagem = personagem_json()
+    del personagem[personagem_id]
+    atualized_personagem = personagem
 
-    with open("users.json", "w", encoding="utf-8") as arquivo:
-        json.dump(atualized_users, arquivo, ensure_ascii=False, indent=4)
+    with open("personagem.json", "w", encoding="utf-8") as arquivo:
+        json.dump(atualized_personagem, arquivo, ensure_ascii=False, indent=4)
 
-    return {'Id apagado com sucesso' : user_id}
+    return {'Id apagado com sucesso' : personagem_id}
