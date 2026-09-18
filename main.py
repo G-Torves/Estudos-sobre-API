@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import json
 import bcrypt
+from basemodel import new_character, show_character
 
 app = FastAPI()
 
@@ -35,20 +36,26 @@ def status ():
             'Database': 'Em andamento...',
             'IA': 'Em andamento...'}
 
-@app.get('/personagem')
+@app.get('/personagem', response_model=dict[str, show_character])
 def listar_Personagens():
     personagem = personagem_json()
     return personagem
 
-@app.get('/personagem/{personagem_id}')
+@app.get('/personagem/{personagem_id}', response_model=show_character)
 def buscar_Personagem(personagem_id):
     personagem = personagem_json()
+
+    if personagem_id not in personagem:
+        raise HTTPException(
+            status_code=404, 
+            detail="Personagem não encontrado."
+            )
     return personagem[f'{personagem_id}']
 
 @app.post('/personagem/new')
-def novo_Personagem(name: str, password: str):
+def novo_Personagem(new_character: new_character):
     personagem = personagem_json()
-    dados = {'nome': f'{name}', 'Status': 'Ativo', 'Senha': f'{password_crypt(password)}'}
+    dados = {'nome': f'{new_character.nome}', 'Status': 'Ativo', 'Senha': f'{password_crypt(new_character.senha)}'}
     key = personagem.keys()
     if key:
         proximo_id = str(max([int(k) for k in key]) + 1)
@@ -67,6 +74,11 @@ def atualizar_Personagem(personagem_id: str, alteration_field: str, alteration_v
     user_old[personagem_id][f'{alteration_field}'] = alteration_value
     user_new = user_old
     
+    if personagem_id not in user_old:
+        raise HTTPException(
+            status_code=404,
+            detail="Usuario não encontrado"
+        )
     with open("personagem.json", "w", encoding="utf-8") as arquivo:
         json.dump(user_new, arquivo, ensure_ascii=False, indent=4)
     
