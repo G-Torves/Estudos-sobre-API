@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import json
 import bcrypt
-from basemodel import new_character, show_character
+from basemodel import new_character, show_character, update_character
 
 app = FastAPI()
 
@@ -52,7 +52,7 @@ def buscar_Personagem(personagem_id):
             )
     return personagem[f'{personagem_id}']
 
-@app.post('/personagem/new')
+@app.post('/personagem/novo')
 def novo_Personagem(new_character: new_character):
     personagem = personagem_json()
     dados = {'nome': f'{new_character.nome}', 'Status': 'Ativo', 'Senha': f'{password_crypt(new_character.senha)}'}
@@ -68,24 +68,31 @@ def novo_Personagem(new_character: new_character):
     
     return personagem[proximo_id]
 
-@app.patch('/personagem/update')
-def atualizar_Personagem(personagem_id: str, alteration_field: str, alteration_value: str):
+@app.patch('/personagem/atualizar')
+def atualizar_Personagem(personagem_id: str, alteration: update_character):
     user_old = personagem_json()
-    user_old[personagem_id][f'{alteration_field}'] = alteration_value
-    user_new = user_old
-    
+
     if personagem_id not in user_old:
         raise HTTPException(
             status_code=404,
             detail="Usuario não encontrado"
         )
-    with open("personagem.json", "w", encoding="utf-8") as arquivo:
-        json.dump(user_new, arquivo, ensure_ascii=False, indent=4)
+    if not alteration:
+        raise HTTPException(
+            status_code=400,
+            datail="Nenhum campo valido foi fornecido para atualização."
+        )
+
+    user = user_old[personagem_id]
+    update = alteration.model_dump(exclude_unset=True)
+
+    for chave, valor in update.items():
+        user[chave] = valor
+
+    return user_old
     
-    return user_new[personagem_id]
-    
-@app.delete('/personagem/delete')
-def deletar_Personagem(personagem_id):
+@app.delete('/personagem/apagar')
+def apagar_Personagem(personagem_id):
     personagem = personagem_json()
     del personagem[personagem_id]
     atualized_personagem = personagem
