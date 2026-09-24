@@ -87,7 +87,10 @@ def atualizar_Personagem(personagem_id: str, alteration: update_character):
     update = alteration.model_dump(exclude_unset=True)
 
     for chave, valor in update.items():
-        user[chave] = valor
+        if chave == "Senha":
+            user[chave] = password_crypt(valor)
+        else:
+            user[chave] = valor
 
     return user_old
     
