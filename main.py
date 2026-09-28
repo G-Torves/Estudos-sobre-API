@@ -5,6 +5,8 @@ from basemodel import new_character, show_character, update_character
 
 app = FastAPI()
 
+
+
 # Funções úteis
 def password_crypt(password):
     salt = bcrypt.gensalt()
