@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import json
 import bcrypt
-from basemodel import new_character, show_character, update_character
+from schemas import new_character, show_character, update_character
 
 app = FastAPI()
 
