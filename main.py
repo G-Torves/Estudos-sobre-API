@@ -79,11 +79,6 @@ def atualizar_Personagem(personagem_id: str, alteration: update_character):
             status_code=404,
             detail="Usuario não encontrado"
         )
-    if not alteration:
-        raise HTTPException(
-            status_code=400,
-            datail="Nenhum campo valido foi fornecido para atualização."
-        )
 
     user = user_old[personagem_id]
     update = alteration.model_dump(exclude_unset=True)
@@ -93,8 +88,8 @@ def atualizar_Personagem(personagem_id: str, alteration: update_character):
             user[chave] = password_crypt(valor)
         else:
             user[chave] = valor
+    return user
 
-    return user_old
     
 @app.delete('/personagem/apagar')
 def apagar_Personagem(personagem_id):
