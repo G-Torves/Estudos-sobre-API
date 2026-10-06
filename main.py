@@ -27,6 +27,10 @@ def personagem_json():
         personagem = json.load(archive)
         return personagem
 
+# Puxar dados do .db
+def personagemDB():
+    pass
+
 # API
 @app.get('/')
 def raiz ():
