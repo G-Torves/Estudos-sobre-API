@@ -2,8 +2,7 @@ from pydantic import BaseModel, Field
 
 class new_character (BaseModel):
     nome: str
-    raca: str
-    classe: str
+    senha: str
 
 class show_character (BaseModel):
     nome: str

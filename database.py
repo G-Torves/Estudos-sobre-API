@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, mapped_column, relationship, Session
 from typing import List, Optional
 
 engine = create_engine("sqlite:///rpg.db", echo=True)
-Session = sessionmaker(bind=engine)
+SessionMK = sessionmaker(bind=engine)
 
 class Base (DeclarativeBase):
     pass
@@ -14,65 +14,73 @@ class Base (DeclarativeBase):
 #===========================================
 
 # Personagem
-class character (Base):
-    __tablename__ = "character"
+class personagem (Base):
+    __tablename__ = "personagem"
     id: Mapped[int] = mapped_column(primary_key=True, unique=True)
 
-    name: Mapped[str]
-    level: Mapped[int]
+    nome: Mapped[str]
+    nivel: Mapped[int] = mapped_column(default=1)
     raca: Mapped[str]
     classe: Mapped[str]
 
-    strength: Mapped[int]
-    magic: Mapped[int]
-    speed: Mapped[int]
+    forca: Mapped[int] = mapped_column(default=5)
+    magick: Mapped[int] = mapped_column(default=5)
+    velocidade: Mapped[int] = mapped_column(default=5)
 
-    inventory: Mapped[List["inventory"]] = relationship (
-        "inventory",
-        back_populates="Owner",
+    inventario: Mapped[List["inventario"]] = relationship (
+        "inventario",
+        back_populates="owner",
         cascade="all, delete-orphan"
     )
 
 # Armas e Itens
-class dictionary (Base):
-    __tablename__ = "dictionary"
+class arsenal (Base):
+    __tablename__ = "arsenal"
     id: Mapped[int] = mapped_column(primary_key=True, unique=True)
 
-    name: Mapped[str]
-    durability: Mapped[Optional[int]] 
-    damage: Mapped[Optional[int]]
-    desc: Mapped[str]
+    nome: Mapped[str]
+    durabilidade: Mapped[Optional[int]] 
+    dano: Mapped[Optional[int]]
+    descricao: Mapped[str]
 
 # Npcs e Monstros
-class bestiary (Base):
-    __tablename__ = "bestiary"
+class bestiario (Base):
+    __tablename__ = "bestiario"
     id: Mapped[int] = mapped_column(primary_key=True, unique=True)
 
-    name: Mapped[str]
-    race: Mapped[str]
+    nome: Mapped[str]
+    raca: Mapped[str]
     minLvl: Mapped[int]
     maxLvl: Mapped[int]
-    desc: Mapped[str]
-
-#===========================================
-#               Banco de dados                         
-#                     FK
-#===========================================
+    descricao: Mapped[str]
 
 # Inventario
-class inventory (Base):
-    __tablename__ = "inventory"
+class inventario (Base):
+    __tablename__ = "inventario"
     id: Mapped[int] = mapped_column(primary_key=True, unique=True)
     ownerId: Mapped[int] = mapped_column(
-        ForeignKey("character.id", ondelete="CASCADE"),
+        ForeignKey("personagem.id", ondelete="CASCADE"),
         nullable=False
         )
 
     itemId: Mapped[int]
-    amount: Mapped[int] = mapped_column(default=1)
-    isEquiped: Mapped[bool] = mapped_column(default=False)
-    durability: Mapped[int]
+    quantia: Mapped[int] = mapped_column(default=1)
+    equipado: Mapped[bool] = mapped_column(default=False)
+    durabilidade: Mapped[int]
 
-    owner: Mapped["character"] = relationship("character", back_populates="inventory")
+    owner: Mapped["personagem"] = relationship("personagem", back_populates="inventario")
+
 
 Base.metadata.create_all(bind=engine)
+
+#===========================================
+#              Banco de dados                       
+#                 Funções
+#===========================================
+
+def novoPersonagem (nome, raca, classe, ):
+    with Session(engine) as session:
+        newCharacter = personagem(nome=nome, raca=raca, classe=classe)
+
+        session.add(newCharacter)
+        session.commit()

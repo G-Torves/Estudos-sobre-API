@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
+import json
 import bcrypt
 from schemas import new_character, show_character, update_character
-from database import novoPersonagem 
+
 app = FastAPI()
 
 
@@ -12,6 +13,22 @@ def password_crypt(password):
     
     hash_password = bcrypt.hashpw(password,salt)
     return hash_password
+
+def personagem_json():
+    try:
+        archive = open("personagem.json", 'r')
+        personagem = json.load(archive)
+        return personagem
+    except FileNotFoundError:
+        with open('personagem.json', 'w') as arquivo:
+            arquivo.write("{\n\n}")
+        archive = open("personagem.json", 'r')
+        personagem = json.load(archive)
+        return personagem
+
+# Puxar dados do .db
+def personagemDB():
+    pass
 
 # API
 @app.get('/')
@@ -42,8 +59,19 @@ def buscar_Personagem(personagem_id):
 
 @app.post('/personagem/novo')
 def novo_Personagem(new_character: new_character):
-    novoPersonagem(new_character.nome, new_character.raca, new_character.classe)
-    return {"Concluid": "Personagem criado"}
+    personagem = personagem_json()
+    dados = {'nome': f'{new_character.nome}', 'Status': 'Ativo', 'Senha': f'{password_crypt(new_character.senha)}'}
+    key = personagem.keys()
+    if key:
+        proximo_id = str(max([int(k) for k in key]) + 1)
+    else: 
+        proximo_id = '1' 
+    personagem[proximo_id] = dados
+
+    with open("personagem.json", "w", encoding="utf-8") as arquivo:
+        json.dump(personagem, arquivo, ensure_ascii=False, indent=4)
+    
+    return personagem[proximo_id]
 
 @app.patch('/personagem/atualizar')
 def atualizar_Personagem(personagem_id: str, alteration: update_character):
