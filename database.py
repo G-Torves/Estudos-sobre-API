@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, ForeignKey
+from sqlalchemy import create_engine, ForeignKey, select
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, mapped_column, relationship, Session
 from typing import List, Optional
 
@@ -9,8 +9,7 @@ class Base (DeclarativeBase):
     pass
 
 #===========================================
-#              Banco de dados                       
-#                  Base
+#              Banco de dados                                         
 #===========================================
 
 # Personagem
@@ -78,9 +77,22 @@ Base.metadata.create_all(bind=engine)
 #                 Funções
 #===========================================
 
-def novoPersonagem (nome, raca, classe, ):
+def novoPersonagem (nome, raca, classe):
     with Session(engine) as session:
-        newCharacter = personagem(nome=nome, raca=raca, classe=classe)
+        novoPersonagem = personagem(nome=nome, raca=raca, classe=classe)
 
-        session.add(newCharacter)
+        session.add(novoPersonagem)
         session.commit()
+
+def mostrarPersonagens ():
+    with Session(engine) as session:
+        banco = select(personagem)
+        saida = []
+        for i in session.scalars(banco):
+            pp = {"id": i.id,
+                  "nome": i.nome,
+                  "nivel": i.nivel,
+                  "raca": i.raca,
+                  "classe": i.classe}
+            saida.append(pp)
+        return saida

@@ -1,16 +1,16 @@
 from fastapi import FastAPI, HTTPException
 import bcrypt
-from schemas import new_character, show_character, update_character
-from database import novoPersonagem 
+from schemas import SchemaNovoPersonagem, SchemaMostrarPersonagem, SchemaAtualizarPersonagem
+from database import novoPersonagem, mostrarPersonagens
 app = FastAPI()
 
 
 # Funções úteis
-def password_crypt(password):
+def password_crypt(senha):
     salt = bcrypt.gensalt()
-    password = password.encode('utf-8')
+    senha = senha.encode('utf-8')
     
-    hash_password = bcrypt.hashpw(password,salt)
+    hash_password = bcrypt.hashpw(senha, salt)
     return hash_password
 
 # API
@@ -24,12 +24,12 @@ def status ():
             'Database': 'Em andamento...',
             'IA': 'Em andamento...'}
 
-@app.get('/personagem', response_model=dict[str, show_character])
+@app.get('/personagem', response_model=dict[str, SchemaMostrarPersonagem])
 def listar_Personagens():
-    personagem = personagem_json()
-    return personagem
+    mostrar = mostrarPersonagens()
+    return mostrar
 
-@app.get('/personagem/{personagem_id}', response_model=show_character)
+@app.get('/personagem/{personagem_id}', response_model=SchemaMostrarPersonagem)
 def buscar_Personagem(personagem_id):
     personagem = personagem_json()
 
@@ -41,12 +41,12 @@ def buscar_Personagem(personagem_id):
     return personagem[f'{personagem_id}']
 
 @app.post('/personagem/novo')
-def novo_Personagem(new_character: new_character):
-    novoPersonagem(new_character.nome, new_character.raca, new_character.classe)
-    return {"Concluid": "Personagem criado"}
+def novo_Personagem(SchemaNovoPersonagem: SchemaNovoPersonagem):
+    novoPersonagem(SchemaNovoPersonagem.nome, SchemaNovoPersonagem.raca, SchemaNovoPersonagem.classe)
+    return {"Concluido": "Personagem criado"}
 
 @app.patch('/personagem/atualizar')
-def atualizar_Personagem(personagem_id: str, alteration: update_character):
+def atualizar_Personagem(personagem_id: str, alteracao: SchemaAtualizarPersonagem):
     user_old = personagem_json()
 
     if personagem_id not in user_old:
@@ -56,7 +56,7 @@ def atualizar_Personagem(personagem_id: str, alteration: update_character):
         )
 
     user = user_old[personagem_id]
-    update = alteration.model_dump(exclude_unset=True)
+    update = alteracao.model_dump(exclude_unset=True)
 
     for chave, valor in update.items():
         if chave == "Senha":
