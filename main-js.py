@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import json
 import bcrypt
-from schemas import new_character, show_character, update_character
+from schemasjs import new_character, show_character, update_character
 
 app = FastAPI()
 
@@ -44,7 +44,7 @@ def status ():
 @app.get('/personagem', response_model=dict[str, show_character])
 def listar_Personagens():
     personagem = personagem_json()
-    return personagem
+    return print(personagem)
 
 @app.get('/personagem/{personagem_id}', response_model=show_character)
 def buscar_Personagem(personagem_id):
@@ -104,3 +104,5 @@ def apagar_Personagem(personagem_id):
         json.dump(atualized_personagem, arquivo, ensure_ascii=False, indent=4)
 
     return {'Id apagado com sucesso' : personagem_id}
+
+listar_Personagens()

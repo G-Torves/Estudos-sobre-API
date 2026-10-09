@@ -7,8 +7,9 @@ class SchemaNovoPersonagem (BaseModel):
 
 class SchemaMostrarPersonagem (BaseModel):
     nome: str
-    Status: str
-    Senha: str = Field(exclude=True)
+    nivel: str
+    raca: str
+    classe: str
 
 class SchemaAtualizarPersonagem (BaseModel):
     nome: str | None = None

@@ -87,12 +87,26 @@ def novoPersonagem (nome, raca, classe):
 def mostrarPersonagens ():
     with Session(engine) as session:
         banco = select(personagem)
-        saida = []
+        lista = []
         for i in session.scalars(banco):
-            pp = {"id": i.id,
-                  "nome": i.nome,
-                  "nivel": i.nivel,
-                  "raca": i.raca,
-                  "classe": i.classe}
-            saida.append(pp)
+            pp = {
+                  "id": f"{i.id}",
+                  "nome": f"{i.nome}",
+                  "nivel": f"{i.nivel}",
+                  "raca": f"{ i.raca}",
+                  "classe": f"{i.classe}"
+                  }
+            lista.append(pp)
+            
+            saida = {}
+            for j in lista:
+                id_personagem = j["id"]
+    
+                saida[id_personagem] = {
+                  "id": j["id"],
+                  "nome": j["nome"],
+                  "nivel": j["nivel"],
+                  "raca": j["raca"],
+                  "classe": j["classe"]
+                }
         return saida
