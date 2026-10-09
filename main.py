@@ -31,7 +31,7 @@ def listar_Personagens():
 
 @app.get('/personagem/{personagem_id}', response_model=SchemaMostrarPersonagem)
 def buscar_Personagem(personagem_id):
-    personagem = personagem_json()
+    personagem = mostrarPersonagens()
 
     if personagem_id not in personagem:
         raise HTTPException(
