@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import bcrypt
 from schemas import SchemaNovoPersonagem, SchemaMostrarPersonagem, SchemaAtualizarPersonagem
-from database import novoPersonagem, mostrarPersonagens
+from database import novoPersonagem, mostrarPersonagens, atualizarPersonagem
 app = FastAPI()
 
 
@@ -46,25 +46,9 @@ def novo_Personagem(SchemaNovoPersonagem: SchemaNovoPersonagem):
     return {"Concluido": "Personagem criado"}
 
 @app.patch('/personagem/atualizar')
-def atualizar_Personagem(personagem_id: str, alteracao: SchemaAtualizarPersonagem):
-    user_old = personagem_json()
-
-    if personagem_id not in user_old:
-        raise HTTPException(
-            status_code=404,
-            detail="Usuario não encontrado"
-        )
-
-    user = user_old[personagem_id]
-    update = alteracao.model_dump(exclude_unset=True)
-
-    for chave, valor in update.items():
-        if chave == "Senha":
-            user[chave] = password_crypt(valor)
-        else:
-            user[chave] = valor
-    return user
-
+def atualizar_Personagem(personagem_id: int, alteracao: SchemaAtualizarPersonagem):
+    saida = atualizarPersonagem(personagem_id, alteracao.nome, alteracao.raca, alteracao.classe)
+    return saida
     
 @app.delete('/personagem/apagar')
 def apagar_Personagem(personagem_id):

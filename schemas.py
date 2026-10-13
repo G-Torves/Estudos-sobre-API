@@ -12,7 +12,7 @@ class SchemaMostrarPersonagem (BaseModel):
     classe: str
 
 class SchemaAtualizarPersonagem (BaseModel):
-    nome: str | None = None
-    Status: str | None = None
-    Senha: str | None = None
+    nome: None | str
+    raca: None | str
+    classe: None | str
 

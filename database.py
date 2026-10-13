@@ -1,8 +1,8 @@
-from sqlalchemy import create_engine, ForeignKey, select
+from sqlalchemy import create_engine, ForeignKey, select 
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, Mapped, mapped_column, relationship, Session
 from typing import List, Optional
 
-engine = create_engine("sqlite:///rpg.db", echo=True)
+engine = create_engine("sqlite:///rpg.db")
 SessionMK = sessionmaker(bind=engine)
 
 class Base (DeclarativeBase):
@@ -110,3 +110,26 @@ def mostrarPersonagens ():
                   "classe": j["classe"]
                 }
         return saida
+
+def atualizarPersonagem(id: int, novoNome = None, novaRaca = None, novaClasse = None):
+    script  = select(personagem).where(personagem.id == id)
+    session = Session(engine)
+
+    pAntigo = session.scalars(script).first()
+
+    if novoNome != None:
+        pAntigo.nome = novoNome
+
+    if novaRaca != None:
+        pAntigo.raca = novaRaca
+    
+    if novaClasse != None:
+        pAntigo.classe = novaClasse
+
+    session.commit()
+    return {
+          "Status": "Atualizado com sucesso!",
+          "Nome": f"{pAntigo.nome}",
+          "Raça": f"{pAntigo.raca}",
+          "Classe": f"{pAntigo.classe}"
+          }
