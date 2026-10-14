@@ -46,7 +46,7 @@ def novo_Personagem(personagem: SchemaNovoPersonagem):
     novoPersonagem(personagem.nome, personagem.raca, personagem.classe)
     return {"Concluido": "Personagem criado"}
 
-@app.patch('/personagem/atualizar')
+@app.patch('/personagem/atualizar/{personagem_id}')
 def atualizar_Personagem(personagem_id: int, alteracao: SchemaAtualizarPersonagem):
     saida = atualizarPersonagem(personagem_id, alteracao.nome, alteracao.raca, alteracao.classe)
     return saida
