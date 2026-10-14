@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import bcrypt
 from schemas import SchemaNovoPersonagem, SchemaMostrarPersonagem, SchemaAtualizarPersonagem
-from database import novoPersonagem, mostrarPersonagens, atualizarPersonagem
+from database import novoPersonagem, mostrarPersonagens, atualizarPersonagem, deletarPersonagem
 app = FastAPI()
 
 
@@ -16,7 +16,7 @@ def password_crypt(senha):
 # API
 @app.get('/')
 def raiz ():
-    return {"Status": "OK"}
+    return {"Rota inicial": "OK"}
 
 @app.get('/status')
 def status ():
@@ -26,23 +26,24 @@ def status ():
 
 @app.get('/personagem', response_model=dict[str, SchemaMostrarPersonagem])
 def listar_Personagens():
-    mostrar = mostrarPersonagens()
-    return mostrar
+    saida = mostrarPersonagens()
+    return saida
 
 @app.get('/personagem/{personagem_id}', response_model=SchemaMostrarPersonagem)
-def buscar_Personagem(personagem_id):
-    personagem = mostrarPersonagens()
+def buscar_Personagem(personagem_id: int):
+    personagem = mostrarPersonagens(personagem_id)
 
-    if personagem_id not in personagem:
+    if personagem == {}:
         raise HTTPException(
             status_code=404, 
             detail="Personagem não encontrado."
             )
-    return personagem[f'{personagem_id}']
+
+    return personagem
 
 @app.post('/personagem/novo')
-def novo_Personagem(SchemaNovoPersonagem: SchemaNovoPersonagem):
-    novoPersonagem(SchemaNovoPersonagem.nome, SchemaNovoPersonagem.raca, SchemaNovoPersonagem.classe)
+def novo_Personagem(personagem: SchemaNovoPersonagem):
+    novoPersonagem(personagem.nome, personagem.raca, personagem.classe)
     return {"Concluido": "Personagem criado"}
 
 @app.patch('/personagem/atualizar')
@@ -50,13 +51,8 @@ def atualizar_Personagem(personagem_id: int, alteracao: SchemaAtualizarPersonage
     saida = atualizarPersonagem(personagem_id, alteracao.nome, alteracao.raca, alteracao.classe)
     return saida
     
-@app.delete('/personagem/apagar')
-def apagar_Personagem(personagem_id):
-    personagem = personagem_json()
-    del personagem[personagem_id]
-    atualized_personagem = personagem
+@app.delete('/personagem/apagar/{personagem_id}')
+def apagar_Personagem(personagem_id: int):
+    saida = deletarPersonagem(personagem_id)
 
-    with open("personagem.json", "w", encoding="utf-8") as arquivo:
-        json.dump(atualized_personagem, arquivo, ensure_ascii=False, indent=4)
-
-    return {'Id apagado com sucesso' : personagem_id}
+    return saida

@@ -84,52 +84,83 @@ def novoPersonagem (nome, raca, classe):
         session.add(novoPersonagem)
         session.commit()
 
-def mostrarPersonagens ():
+def mostrarPersonagens (id = None):
     with Session(engine) as session:
-        banco = select(personagem)
-        lista = []
-        for i in session.scalars(banco):
-            pp = {
-                  "id": f"{i.id}",
-                  "nome": f"{i.nome}",
-                  "nivel": f"{i.nivel}",
-                  "raca": f"{ i.raca}",
-                  "classe": f"{i.classe}"
-                  }
-            lista.append(pp)
-            
-            saida = {}
-            for j in lista:
-                id_personagem = j["id"]
-    
-                saida[id_personagem] = {
-                  "id": j["id"],
-                  "nome": j["nome"],
-                  "nivel": j["nivel"],
-                  "raca": j["raca"],
-                  "classe": j["classe"]
+        saida = {}
+
+        if id != None:
+            banco = select(personagem).where(personagem.id == id)
+            for i in session.scalars(banco):
+                saida = {
+                    "id": f"{i.id}",
+                    "nome": f"{i.nome}",
+                    "nivel": f"{i.nivel}",
+                    "raca": f"{i.raca}",
+                    "classe": f"{i.classe}"
                 }
+
+        else:
+            banco = select(personagem)
+            lista = []
+            for i in session.scalars(banco):
+                pp = {
+                    "id": f"{i.id}",
+                    "nome": f"{i.nome}",
+                    "nivel": f"{i.nivel}",
+                    "raca": f"{ i.raca}",
+                    "classe": f"{i.classe}"
+                    }
+                lista.append(pp)
+                
+                for j in lista:
+                    id_personagem = j["id"]
+        
+                    saida[id_personagem] = {
+                    "id": j["id"],
+                    "nome": j["nome"],
+                    "nivel": j["nivel"],
+                    "raca": j["raca"],
+                    "classe": j["classe"]
+                    }
         return saida
 
-def atualizarPersonagem(id: int, novoNome = None, novaRaca = None, novaClasse = None):
+def atualizarPersonagem (id: int, novoNome = None, novaRaca = None, novaClasse = None):
     script  = select(personagem).where(personagem.id == id)
-    session = Session(engine)
+    saida = {}
+    with Session(engine) as session:
+        pAntigo = session.scalars(script).first()
 
-    pAntigo = session.scalars(script).first()
+        if novoNome != None:
+            pAntigo.nome = novoNome
+        if novaRaca != None:
+            pAntigo.raca = novaRaca
+        if novaClasse != None:
+            pAntigo.classe = novaClasse
 
-    if novoNome != None:
-        pAntigo.nome = novoNome
+        session.commit()
 
-    if novaRaca != None:
-        pAntigo.raca = novaRaca
-    
-    if novaClasse != None:
-        pAntigo.classe = novaClasse
+        for i in session.scalars(script):
+                saida = {
+                    "id": f"{i.id}",
+                    "nome": f"{i.nome}",
+                    "nivel": f"{i.nivel}",
+                    "raca": f"{i.raca}",
+                    "classe": f"{i.classe}"
+                }
 
-    session.commit()
-    return {
-          "Status": "Atualizado com sucesso!",
-          "Nome": f"{pAntigo.nome}",
-          "Raça": f"{pAntigo.raca}",
-          "Classe": f"{pAntigo.classe}"
-          }
+    return saida
+
+def deletarPersonagem (id: int):
+    script  = select(personagem).where(personagem.id == id)
+    with Session(engine) as session:
+        apagar = session.scalars(script).first()
+
+        if apagar:
+            session.delete(apagar)
+            session.commit()
+            mostrar = {"Resultado": f"Personagem {id} apagado com sucesso!"}
+        else:
+            mostrar = {"Resultado": f"Falha ao apagar o personagem {id}!"}
+
+    return mostrar
+
