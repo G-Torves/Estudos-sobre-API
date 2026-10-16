@@ -5,15 +5,6 @@ from database import novoPersonagem, mostrarPersonagens, atualizarPersonagem, de
 app = FastAPI()
 
 
-# Funções úteis
-def password_crypt(senha):
-    salt = bcrypt.gensalt()
-    senha = senha.encode('utf-8')
-    
-    hash_password = bcrypt.hashpw(senha, salt)
-    return hash_password
-
-# API
 @app.get('/')
 def raiz ():
     return {"Rota inicial": "OK"}
@@ -24,6 +15,10 @@ def status ():
             'Database': 'Em andamento...',
             'IA': 'Em andamento...'}
 
+#===========================================
+#                   API                       
+#                Personagem
+#===========================================
 @app.get('/personagem', response_model=dict[str, SchemaMostrarPersonagem])
 def listar_Personagens():
     saida = mostrarPersonagens()
@@ -56,3 +51,8 @@ def apagar_Personagem(personagem_id: int):
     saida = deletarPersonagem(personagem_id)
 
     return saida
+
+#===========================================
+#                   API                       
+#               Inventario
+#===========================================
