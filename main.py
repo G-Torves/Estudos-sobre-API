@@ -56,3 +56,23 @@ def apagar_Personagem(personagem_id: int):
 #                   API                       
 #               Inventario
 #===========================================
+
+@app.get('/inventario')
+def listar_inventarios():
+    pass
+
+@app.get('/inventario/{personagem_id}')
+def visualizar_inventario(personagem_id: int):
+    pass
+
+@app.post('/inventario/{personagem_id}/adicionar_item')
+def adicionar_item(personagem_id: int):
+    pass
+
+@app.delete('/inventario/{personagem_id}/apagar_item')
+def apagar_item(personagem_id: int):
+    pass
+
+@app.patch('/inventario/{personagem_id}/alterar_item')
+def alterar_item(personagem_id: int):
+    pass

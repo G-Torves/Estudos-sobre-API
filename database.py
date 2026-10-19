@@ -62,7 +62,10 @@ class inventario (Base):
         nullable=False
         )
 
-    itemId: Mapped[int]
+    itemId: Mapped[int] = mapped_column(
+        ForeignKey("arsenal.id"),
+        nullable=False
+)
     quantia: Mapped[int] = mapped_column(default=1)
     equipado: Mapped[bool] = mapped_column(default=False)
     durabilidade: Mapped[int]
@@ -164,3 +167,25 @@ def deletarPersonagem (id: int):
 
     return mostrar
 
+def mostrarInventario (id = None):
+    with Session(engine) as session:
+        saida = {}
+
+        if id != None:
+            banco = select(inventario).where(inventario.ownerId == id)
+            for i in session.scalars(banco):
+                saida = {
+                    "Dono": f"{i.owner.nome}",
+                    "" : ""
+                }
+
+        print(saida)
+    
+def adicionarItem(ownerId, itemId, quantia, equipado, durabilidade):
+        with Session(engine) as session:
+            novoItem = inventario(ownerId=ownerId, itemId=itemId, quantia=quantia, equipado=equipado, durabilidade=durabilidade)
+
+            session.add(novoItem)
+            session.commit()
+
+mostrarInventario(1)
