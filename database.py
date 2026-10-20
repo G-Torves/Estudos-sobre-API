@@ -42,6 +42,11 @@ class arsenal (Base):
     dano: Mapped[Optional[int]]
     descricao: Mapped[str]
 
+    inventario: Mapped[list["inventario"]] = relationship (
+        "inventario",
+        back_populates="itemInfo"
+    )
+
 # Npcs e Monstros
 class bestiario (Base):
     __tablename__ = "bestiario"
@@ -71,6 +76,7 @@ class inventario (Base):
     durabilidade: Mapped[int]
 
     owner: Mapped["personagem"] = relationship("personagem", back_populates="inventario")
+    itemInfo: Mapped["arsenal"] = relationship("arsenal", back_populates="inventario")
 
 
 Base.metadata.create_all(bind=engine)
@@ -80,6 +86,7 @@ Base.metadata.create_all(bind=engine)
 #                 Funções
 #===========================================
 
+# Personagem
 def novoPersonagem (nome, raca, classe):
     with Session(engine) as session:
         novoPersonagem = personagem(nome=nome, raca=raca, classe=classe)
@@ -104,27 +111,17 @@ def mostrarPersonagens (id = None):
 
         else:
             banco = select(personagem)
-            lista = []
+            saida = {}
+            num = 1
             for i in session.scalars(banco):
-                pp = {
+                saida[f"{num}"] = {
                     "id": f"{i.id}",
                     "nome": f"{i.nome}",
                     "nivel": f"{i.nivel}",
                     "raca": f"{ i.raca}",
                     "classe": f"{i.classe}"
                     }
-                lista.append(pp)
-                
-                for j in lista:
-                    id_personagem = j["id"]
-        
-                    saida[id_personagem] = {
-                    "id": j["id"],
-                    "nome": j["nome"],
-                    "nivel": j["nivel"],
-                    "raca": j["raca"],
-                    "classe": j["classe"]
-                    }
+                num += 1
         return saida
 
 def atualizarPersonagem (id: int, novoNome = None, novaRaca = None, novaClasse = None):
@@ -167,25 +164,70 @@ def deletarPersonagem (id: int):
 
     return mostrar
 
-def mostrarInventario (id = None):
-    with Session(engine) as session:
-        saida = {}
-
-        if id != None:
-            banco = select(inventario).where(inventario.ownerId == id)
-            for i in session.scalars(banco):
-                saida = {
-                    "Dono": f"{i.owner.nome}",
-                    "" : ""
-                }
-
-        print(saida)
-    
-def adicionarItem(ownerId, itemId, quantia, equipado, durabilidade):
+# Inventario
+def adicionarItem(ownerId: int, itemId: int, quantia: int, equipado: bool, durabilidade: int):
         with Session(engine) as session:
             novoItem = inventario(ownerId=ownerId, itemId=itemId, quantia=quantia, equipado=equipado, durabilidade=durabilidade)
 
             session.add(novoItem)
             session.commit()
 
-mostrarInventario(1)
+def mostrarInventario (id = None):
+    with Session(engine) as session:
+        saida = {}
+
+        if id != None:
+            banco = select(inventario).where(inventario.ownerId == id)
+            num = 1
+            for i in session.scalars(banco):
+                saida[f"{num}"] = {
+                    "Item" : f"{i.itemInfo.nome}",
+                    "Durabilidade": f"{i.durabilidade}",
+                    "Descricao": f"{i.itemInfo.descricao}",
+                    "Estado": f"{'Equipado' if i.equipado else 'Guardado/Desequipado'}"
+                }
+                num += 1
+        else:
+            banco = select(inventario)
+            num = 1 
+            for i in session.scalars(banco):
+                saida[f"{num}"] = {
+                    "Dono": f"{i.owner.nome}",
+                    "Item" : f"{i.itemInfo.nome}",
+                    "Durabilidade": f"{i.durabilidade}",
+                    "Descricao": f"{i.itemInfo.descricao}",
+                    "Estado": f"{'Equipado' if i.equipado else 'Guardado/Desequipado'}"
+                }
+                num += 1
+        return saida
+
+def deletarItem (idInventario: int):
+    script  = select(inventario).where(inventario.id == idInventario)
+    with Session(engine) as session:
+        apagar = session.scalars(script).first()
+
+        if apagar:
+            session.delete(apagar)
+            session.commit()
+            mostrar = {"Resultado": f"Personagem {idInventario} apagado com sucesso!"}
+        else:
+            mostrar = {"Resultado": f"Falha ao apagar o personagem {idInventario}!"}
+
+    return mostrar
+
+# Arsenal
+def criarItem(nome: str, durabilidade: int, dano: int, descricao: str):
+        with Session(engine) as session:
+            novoItem = arsenal(nome=nome, durabilidade=durabilidade, dano=dano, descricao=descricao)
+
+            session.add(novoItem)
+            session.commit()
+
+# Bestiario
+
+
+# novoPersonagem("Kamen", "Semi-Deus", "Monge")
+# criarItem("Roupas Simples", 100, 0, "Roupas comuns usadas por um mero individuo")
+# adicionarItem(1, 1, 1, False, 49)
+# deletarItem(5)
+# print(mostrarInventario())
