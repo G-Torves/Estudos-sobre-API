@@ -87,7 +87,7 @@ Base.metadata.create_all(bind=engine)
 #===========================================
 
 # Personagem
-def novoPersonagem (nome, raca, classe):
+def novoPersonagem (nome: str, raca: str, classe: str):
     with Session(engine) as session:
         novoPersonagem = personagem(nome=nome, raca=raca, classe=classe)
 
@@ -165,12 +165,14 @@ def deletarPersonagem (id: int):
     return mostrar
 
 # Inventario
-def adicionarItem(ownerId: int, itemId: int, quantia: int, equipado: bool, durabilidade: int):
+def adicionarItem (ownerId: int, itemId: int, quantia: int, equipado: bool, durabilidade: int):
         with Session(engine) as session:
             novoItem = inventario(ownerId=ownerId, itemId=itemId, quantia=quantia, equipado=equipado, durabilidade=durabilidade)
 
             session.add(novoItem)
             session.commit()
+
+        return {"Resultado": "Item adicionado ao invetário com sucesso!"}
 
 def mostrarInventario (id = None):
     with Session(engine) as session:
@@ -209,21 +211,60 @@ def deletarItem (idInventario: int):
         if apagar:
             session.delete(apagar)
             session.commit()
-            mostrar = {"Resultado": f"Personagem {idInventario} apagado com sucesso!"}
+            mostrar = {"Resultado": f"Inventário {idInventario} apagado com sucesso!"}
         else:
-            mostrar = {"Resultado": f"Falha ao apagar o personagem {idInventario}!"}
+            mostrar = {"Resultado": f"Falha ao apagar o inventário {idInventario}!"}
 
     return mostrar
 
 # Arsenal
-def criarItem(nome: str, durabilidade: int, dano: int, descricao: str):
+def criarItem (nome: str, durabilidade: int, dano: int, descricao: str):
         with Session(engine) as session:
             novoItem = arsenal(nome=nome, durabilidade=durabilidade, dano=dano, descricao=descricao)
 
             session.add(novoItem)
             session.commit()
 
+        return {"Resultado": "Item adicionado ao arsenal!"}
+
+def apagarItem (id: int):
+    script = select(arsenal).where(arsenal.id == id)
+    with Session(engine) as session:
+        apagar = session.scalars(script).first()
+
+        if apagar:
+            session.delete(apagar)
+            session.commit()
+            mostrar = {"Resultado": f"Item n°{id} apagado com sucesso!"}
+        else:
+            mostrar = {"Resultado": f"Falha ao apagar o item n°{id}!"}
+
+    return mostrar
+
 # Bestiario
+def criarCriatura (nome: str, raca: str, minLvl: int, maxLvl: int, descricao: str):
+    with Session(engine) as session: 
+        novaCriatura = bestiario(nome=nome, raca=raca, minLvl=minLvl, maxLvl=maxLvl, descricao=descricao)
+        
+        session.add(novaCriatura)
+        session.commit()
+
+    return {"Resultado": "Criatura adicionada ao bestiário!"}
+
+def apagarCriatura (id: int):
+    script = select(bestiario).where(bestiario.id == id)
+
+    with Session(engine) as session:
+        apagar = session.scalars(script).first()
+        
+        if apagar:
+            session.delete(apagar)
+            session.commit()
+            mostrar = {"Resultado": "Criatura apagada com sucesso!"}
+        else:
+            mostrar = {"Resultado": "Falha ao apagar criatura."}
+
+        return mostrar
 
 
 # novoPersonagem("Kamen", "Semi-Deus", "Monge")
