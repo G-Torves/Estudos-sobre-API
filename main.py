@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import bcrypt
-from schemas import SchemaNovoPersonagem, SchemaMostrarPersonagem, SchemaAtualizarPersonagem
-from database import novoPersonagem, mostrarPersonagens, atualizarPersonagem, deletarPersonagem
+from schemas import SchemaNovoPersonagem, SchemaMostrarPersonagem, SchemaAtualizarPersonagem, SchemaAdicionarItem
+from database import novoPersonagem, mostrarPersonagens, atualizarPersonagem, deletarPersonagem, adicionarItem, mostrarInventario, deletarItem, criarItem, apagarItem, criarCriatura, apagarCriatura
 app = FastAPI()
 
 
@@ -41,12 +41,12 @@ def novo_Personagem(personagem: SchemaNovoPersonagem):
     novoPersonagem(personagem.nome, personagem.raca, personagem.classe)
     return {"Concluido": "Personagem criado"}
 
-@app.patch('/personagem/atualizar/{personagem_id}')
+@app.patch('/personagem/{personagem_id}/atualizar')
 def atualizar_Personagem(personagem_id: int, alteracao: SchemaAtualizarPersonagem):
     saida = atualizarPersonagem(personagem_id, alteracao.nome, alteracao.raca, alteracao.classe)
     return saida
     
-@app.delete('/personagem/apagar/{personagem_id}')
+@app.delete('/personagem/{personagem_id}/apagar')
 def apagar_Personagem(personagem_id: int):
     saida = deletarPersonagem(personagem_id)
 
@@ -59,15 +59,21 @@ def apagar_Personagem(personagem_id: int):
 
 @app.get('/inventario')
 def listar_inventarios():
-    pass
+    saida = mostrarInventario()
+
+    return saida
 
 @app.get('/inventario/{personagem_id}')
 def visualizar_inventario(personagem_id: int):
-    pass
+    saida = mostrarInventario(personagem_id)
+
+    return saida
 
 @app.post('/inventario/{personagem_id}/adicionar_item')
-def adicionar_item(personagem_id: int):
-    pass
+def adicionar_item(personagem_id: int, item: SchemaAdicionarItem):
+    saida = adicionarItem(personagem_id, item.itemId, item.quantia, item.equipado, item.durabilidade)
+    
+    return saida
 
 @app.delete('/inventario/{personagem_id}/apagar_item')
 def apagar_item(personagem_id: int):
