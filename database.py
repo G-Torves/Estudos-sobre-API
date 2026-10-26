@@ -203,6 +203,33 @@ def mostrarInventario (id = None):
                 num += 1
         return saida
 
+def alterarItem (id: int, quantia = None, equipado = None, durabilidade = None):
+    script = select(inventario).where(inventario.id == id)
+    saida = {}
+
+    with Session(engine) as session:
+        itemAntigo = session.scalars(script).first()
+
+        if quantia != None:
+            itemAntigo.quantia = quantia
+        if equipado != None:
+            itemAntigo.equipado = equipado
+        if durabilidade != None:
+            itemAntigo.durabilidade = durabilidade
+        
+        session.commit()
+
+        for i in session.scalars(script):
+                saida = {
+                    "id": f"{i.id}",
+                    "nome": f"{i.nome}",
+                    "nivel": f"{i.nivel}",
+                    "raca": f"{i.raca}",
+                    "classe": f"{i.classe}"
+                }
+                
+        return saida
+
 def deletarItem (idInventario: int):
     script  = select(inventario).where(inventario.id == idInventario)
     with Session(engine) as session:

@@ -18,7 +18,6 @@ class SchemaAtualizarPersonagem (BaseModel):
     classe: None | str
 
 # Inventario
-
 class SchemaAdicionarItem (BaseModel):
     itemId: int
     quantia: int
@@ -27,6 +26,7 @@ class SchemaAdicionarItem (BaseModel):
 
 class SchemaMostrarInventario (BaseModel):
     pass
+
 # Arsenal
 
 
