@@ -222,10 +222,10 @@ def alterarItem (id: int, quantia = None, equipado = None, durabilidade = None):
         for i in session.scalars(script):
                 saida = {
                     "id": f"{i.id}",
-                    "nome": f"{i.nome}",
-                    "nivel": f"{i.nivel}",
-                    "raca": f"{i.raca}",
-                    "classe": f"{i.classe}"
+                    "nome": f"{i.itemInfo.nome}",
+                    "quantidade": f"{i.quantia}",
+                    "durabilidade": f"{i.durabilidade}",
+                    "equipado": f"{i.equipado}"
                 }
                 
         return saida

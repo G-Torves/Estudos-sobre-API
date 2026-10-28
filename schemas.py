@@ -8,7 +8,7 @@ class SchemaNovoPersonagem (BaseModel):
 
 class SchemaMostrarPersonagem (BaseModel):
     nome: str
-    nivel: str
+    nivel: int
     raca: str
     classe: str
 
@@ -20,6 +20,11 @@ class SchemaAtualizarPersonagem (BaseModel):
 # Inventario
 class SchemaAdicionarItem (BaseModel):
     itemId: int
+    quantia: int
+    equipado: bool
+    durabilidade: int
+
+class SchemaAlterarItem (BaseModel):
     quantia: int
     equipado: bool
     durabilidade: int
