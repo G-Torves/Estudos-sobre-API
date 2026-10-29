@@ -34,6 +34,11 @@ class SchemaMostrarInventario (BaseModel):
 
 # Arsenal
 
+class SchemaCriarArsenal (BaseModel):
+    nome: str
+    durabilidade: int
+    dano: int
+    descricao: str
 
 # Bestiario
 

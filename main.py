@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 import bcrypt
-from schemas import SchemaNovoPersonagem, SchemaMostrarPersonagem, SchemaAtualizarPersonagem, SchemaAdicionarItem, SchemaAlterarItem
+from schemas import SchemaNovoPersonagem, SchemaMostrarPersonagem, SchemaAtualizarPersonagem, SchemaAdicionarItem, SchemaAlterarItem, SchemaCriarArsenal
 from database import novoPersonagem, mostrarPersonagens, atualizarPersonagem, deletarPersonagem, adicionarItem, mostrarInventario, apagarItem, deletarItem, criarItem, alterarItem, criarCriatura, apagarCriatura
 
 app = FastAPI()
@@ -78,12 +78,29 @@ def adicionar_item(personagem_id: int, item: SchemaAdicionarItem):
 
 @app.delete('/inventario/{personagem_id}/apagar_item')
 def apagar_item(id: int):
-    saida = apagarItem(id)
+    saida = deletarItem(id)
 
     return saida
 
 @app.patch('/inventario/{personagem_id}/alterar_item')
 def alterar_item(id: int, item: SchemaAlterarItem):
     saida = alterarItem(id, item.quantia, item.equipado, item.durabilidade)
+
+    return saida
+
+#===========================================
+#                   API                       
+#                 Arsenal
+#===========================================
+
+@app.post('/arsenal/adicionar')
+def criar_arsenal(item: SchemaCriarArsenal):
+    saida = criarItem(item.nome, item.durabilidade, item.dano, item.descricao)
+
+    return saida
+
+@app.delete('/arsenal/{id}/apagar')
+def apagar_arsenal(id):
+    saida = apagarItem(id)
 
     return saida
